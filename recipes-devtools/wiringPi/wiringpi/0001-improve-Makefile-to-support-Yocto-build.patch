@@ -1,0 +1,77 @@
+From eaac933177aaea97341d9a6900ead7bb1124d520 Mon Sep 17 00:00:00 2001
+From: kas User <kas@example.com>
+Date: Mon, 17 Feb 2025 14:21:20 +0100
+Subject: [PATCH] improve Makefile to support Yocto build
+Upstream-Status: Denied
+
+---
+ wiringPi/Makefile | 30 +++++++++++++-----------------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
+
+diff --git a/wiringPi/Makefile b/wiringPi/Makefile
+index 88fc48e..12d9f5a 100644
+--- a/wiringPi/Makefile
++++ b/wiringPi/Makefile
+@@ -21,18 +21,15 @@
+ #    along with wiringPi.  If not, see <http://www.gnu.org/licenses/>.
+ #################################################################################
+ 
+-VERSION=$(shell cat ../VERSION)
+-DESTDIR?=/usr
+-PREFIX?=/local
+-
+-LDCONFIG?=ldconfig
++VERSION = $(shell cat ../VERSION)
++DESTDIR ?= /usr
+ 
+ ifneq ($V,1)
+ Q ?= @
+ endif
+ 
+-STATIC=libwiringPi.a
+-DYNAMIC=libwiringPi.so.$(VERSION)
++STATIC = libwiringPi.a
++DYNAMIC = libwiringPi.so.$(VERSION)
+ 
+ #DEBUG	= -g -O0
+ DEBUG	= -O2
+@@ -76,7 +73,7 @@ static:
+ 
+ $(DYNAMIC):	$(OBJ)
+ 	$Q echo "[Link (Dynamic)]"
+-	$Q $(CC) -shared -Wl,-soname,libwiringPi.so$(WIRINGPI_SONAME_SUFFIX) -o libwiringPi.so.$(VERSION) $(OBJ) $(LIBS)
++	$Q $(CC) $(LDFLAGS) -shared -Wl,-soname,libwiringPi.so$(WIRINGPI_SONAME_SUFFIX) -o libwiringPi.so.$(VERSION) $(OBJ) $(LIBS)
+ 
+ .c.o:
+ 	$Q echo [Compile] $<
+@@ -97,13 +93,12 @@ tags:	$(SRC)
+ .PHONY:	install
+ install:	$(DYNAMIC)
+ 	$Q echo "[Install Headers]"
+-	$Q install -m 0755 -d						$(DESTDIR)$(PREFIX)/include
+-	$Q install -m 0644 $(HEADERS)					$(DESTDIR)$(PREFIX)/include
++	$Q install -m 0755 -d						$(DESTDIR)/include
++	$Q install -m 0644 $(HEADERS)					$(DESTDIR)/include
+ 	$Q echo "[Install Dynamic Lib]"
+-	$Q install -m 0755 -d						$(DESTDIR)$(PREFIX)/lib
+-	$Q install -m 0755 libwiringPi.so.$(VERSION)			$(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)
+-	$Q ln -sf $(DESTDIR)$(PREFIX)/lib/libwiringPi.so.$(VERSION)	$(DESTDIR)/lib/libwiringPi.so
+-	$Q $(LDCONFIG)
++	$Q install -m 0755 -d						$(DESTDIR)/lib
++	$Q install -m 0755 libwiringPi.so.$(VERSION)			$(DESTDIR)/lib/libwiringPi.so.$(VERSION)
++	$Q cd $(DESTDIR)/lib && ln -sf libwiringPi.so.$(VERSION)	libwiringPi.so
+
+ .PHONY: check-deb-destdir
+ check-deb-destdir:
+@@ -124,9 +120,8 @@ install-deb:	$(DYNAMIC) check-deb-destdir
+ .PHONY:	uninstall
+ uninstall:
+ 	$Q echo "[UnInstall]"
+-	$Q cd $(DESTDIR)$(PREFIX)/include/ && rm -f $(HEADERS)
+-	$Q cd $(DESTDIR)$(PREFIX)/lib/     && rm -f libwiringPi.*
+-	$Q $(LDCONFIG)
++	$Q cd $(DESTDIR)/include/ && rm -f $(HEADERS)
++	$Q cd $(DESTDIR)/lib/     && rm -f libwiringPi.*
+ 
+ 
+ .PHONY:	depend
