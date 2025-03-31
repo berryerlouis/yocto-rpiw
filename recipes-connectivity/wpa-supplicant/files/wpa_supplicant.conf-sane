@@ -1,0 +1,8 @@
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1
+
+network={
+        ssid="louifi"
+        psk=6ba1b638113f943dee684db45e229fcff71312f25df8d08f44e3920fafde2176
+}

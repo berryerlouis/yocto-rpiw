@@ -77,4 +77,4 @@ local_conf_header:
     KERNEL_MODULE_AUTOLOAD:rpi += "i2c-dev i2c-bcm2708"
 
   image-extend: |
-    CORE_IMAGE_EXTRA_INSTALL += "wiringpi"
+    CORE_IMAGE_EXTRA_INSTALL += "wpa-supplicant nodejs nodejs-npm wiringpi tiny-websockets-staticdev"
